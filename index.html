@@ -3,85 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Particle Collision Simulator</title>
+    <title>Quantum Quark Collision Sim</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- ✅ Use MathJax for better LaTeX rendering -->
+    <!-- MathJax for LaTeX rendering -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <div id="simulation-container"></div>
-
     <div id="ui-container">
-        <div id="stats-panel">
-            <h4>Live Stats</h4>
-            <div id="stats-content"></div>
-        </div>
+        <h3>Simulation Settings</h3>
+        <label><input type="checkbox" id="toggle-collisions" checked> Enable Quark Collisions</label>
+        <br><br>
+        <label>Time Speed <input type="range" id="time-slider" min="0" max="3" value="1" step="0.1"></label>
+        <label>Particles <input type="range" id="particle-slider" min="10" max="500" value="100" step="5"></label>
+        <label>Size <input type="range" id="size-slider" min="20" max="100" value="50" step="2"></label>
+        <label><input type="checkbox" id="toggle-gpu" checked> Use GPU</label>
+        <label><input type="checkbox" id="toggle-trails" checked> Show Trails</label>
+        <label><input type="checkbox" id="realtime-update" checked> Real-time Update</label>
+        <button id="focus-btn">Focus Quark</button>
+        <button id="restart-btn">Restart</button>
 
-        <div id="controls-panel">
-            <h4>Simulation Controls</h4>
-            <div class="control-group">
-                <label for="time-slider">Time Speed</label>
-                <input type="range" id="time-slider" min="0" max="3" value="1" step="0.1">
-            </div>
-            <div class="control-group">
-                <label for="particle-slider">Particle Count</label>
-                <input type="range" id="particle-slider" min="10" max="500" value="100" step="5">
-            </div>
-            <div class="control-group">
-                <label for="size-slider">Simulation Size</label>
-                <input type="range" id="size-slider" min="20" max="100" value="30" step="2">
-            </div>
-            <div class="control-group">
-                <input type="checkbox" id="toggle-gpu" checked>
-                <label for="toggle-gpu">GPU Accelerated Physics</label>
-            </div>
-            <div class="control-group">
-                <input type="checkbox" id="toggle-trails" checked>
-                <label for="toggle-trails">Show Particle Trails</label>
-            </div>
-            <div class="control-group">
-                <input type="checkbox" id="realtime-update" checked>
-                <label for="realtime-update">Update Simulation Real-time</label>
-            </div>
-            <button id="focus-btn">Focus on Quark</button>
-            <button id="restart-btn">Apply & Restart</button>
-        </div>
+        <h3>Stats</h3>
+        <div id="stats-content"></div>
 
-        <div id="equations-panel">
-            <h4>Simulation Equations</h4>
-            <div id="equations-content"></div>
-        </div>
+        <h3>Equations</h3>
+        <div id="equations-content"></div>
 
-        <div id="info-panel">
-            <h4>About This Simulation</h4>
-            <p>This is a high-performance, illustrative simulation of particle interactions inspired by quantum principles. It uses classical mechanics for collisions to ensure performance.</p>
-            <p><strong>Disclaimer:</strong> This is not a scientifically exact quantum simulation.</p>
-        </div>
-
-        <div id="credits-panel">
-            <h4>Credits</h4>
-            <p>Developed by [Your Name/Team Name]</p>
-            <p>Special thanks to Three.js, MathJax, and the open-source community.</p>
-        </div>
-
-        <div id="papers-panel">
-            <h4>Scientific Papers & Resources</h4>
-            <ul>
-                <li><a href="https://arxiv.org/abs/quant-ph/0004055" target="_blank">A. Aspect, J. Dalibard, and G. Roger, "Experimental Test of Bell's Inequalities Using Time-Varying Analyzers," Phys. Rev. Lett. 49, 1804 (1982).</a></li>
-                <li><a href="https://www.nature.com/articles/nature01077" target="_blank">M. Arndt, O. Nairz, J. Voss-Andreae, C. Keller, G. van der Zouw, and A. Zeilinger, "Wave-particle duality of C60 molecules," Nature 401, 680 (1999).</a></li>
-                <li><a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.250401" target="_blank">L. K. Shalm et al., "Strong Loophole-Free Test of Local Realism Using Entangled Photons," Phys. Rev. Lett. 115, 250401 (2015).</a></li>
-                <li><a href="https://www.sciencedirect.com/science/article/pii/0034487764900175" target="_blank">R. P. Feynman, "The Theory of Positrons," Phys. Rev. 76, 749 (1949).</a></li>
-                <li><a href="https://www.sciencedirect.com/science/article/pii/0031916361900036" target="_blank">E. Schrödinger, "An Undulatory Theory of the Mechanics of Atoms and Molecules," Phys. Rev. 28, 1049 (1926).</a></li>
-            </ul>
-        </div>
+        <h3>About</h3>
+        <p>Visual simulation of quark-like particle dynamics. Not quantum accurate but educational.</p>
     </div>
 
     <div id="focus-info"></div>
     <div id="tooltip"></div>
 
-    <!-- Three.js and dependencies -->
+    <!-- Three.js dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
@@ -91,7 +48,66 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
-    <!-- Main Logic -->
+    <!-- Main logic -->
     <script src="main.js"></script>
 </body>
 </html>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background-color: #111;
+    color: #ddd;
+}
+
+#simulation-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#ui-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 100%;
+    background: rgba(20, 20, 20, 0.9);
+    padding: 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-left: 1px solid #333;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #444;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background-color: #666;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin-top: 4px;
+    background: #333;
+}
+</style>

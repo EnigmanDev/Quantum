@@ -70,63 +70,99 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createParticle(type) {
-        const pType = particleTypes[type];
-        const material = new THREE.MeshStandardMaterial({ color: pType.color, metalness: 0.7, roughness: 0.3 });
-        const mesh = new THREE.Mesh(new THREE.SphereGeometry(pType.size, 32, 32), material);
+    const pType = particleTypes[type];
+    const material = new THREE.MeshStandardMaterial({ color: pType.color, metalness: 0.7, roughness: 0.3 });
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(pType.size, 32, 32), material);
 
-        const particle = {
-            mesh: mesh,
-            type: type,
-            mass: pType.mass,
-            spin: pType.spin,
-            velocity: new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).multiplyScalar(5),
-            collisions: 0,
-            trail: null
-        };
+    const particle = {
+        mesh: mesh,
+        type: type,
+        mass: pType.mass,
+        spin: pType.spin,
+        charge: type === 'quark' ? (Math.random() < 0.5 ? 2/3 : -1/3) : 0, // add quark charge
+        velocity: new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).multiplyScalar(5),
+        collisions: 0,
+        trail: null
+    };
 
-        if (showTrails) {
-            const trailMaterial = new THREE.LineBasicMaterial({ color: pType.color, transparent: true, opacity: 0.7 });
-            const trailGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(200 * 3);
-            trailGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particle.trail = new THREE.Line(trailGeometry, trailMaterial);
-            scene.add(particle.trail);
-        }
-
-        mesh.position.set((Math.random() - 0.5) * simulationSize, (Math.random() - 0.5) * simulationSize, (Math.random() - 0.5) * simulationSize);
-        particles.push(particle);
-        scene.add(mesh);
+    if (showTrails) {
+        const trailMaterial = new THREE.LineBasicMaterial({ color: pType.color, transparent: true, opacity: 0.7 });
+        const trailGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(200 * 3);
+        trailGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particle.trail = new THREE.Line(trailGeometry, trailMaterial);
+        scene.add(particle.trail);
     }
 
+    mesh.position.set(
+        (Math.random() - 0.5) * simulationSize,
+        (Math.random() - 0.5) * simulationSize,
+        (Math.random() - 0.5) * simulationSize
+    );
+
+    particles.push(particle);
+    scene.add(mesh);
+}
+
     function updatePhysics(timeFactor) {
-        if (!useGpu) {
-            for (let i = 0; i < particles.length; i++) {
-                const p1 = particles[i];
-                p1.mesh.position.add(p1.velocity.clone().multiplyScalar(timeFactor));
+    if (!useGpu) {
+        for (let i = 0; i < particles.length; i++) {
+            const p1 = particles[i];
 
-                if (Math.abs(p1.mesh.position.x) > simulationSize / 2) p1.velocity.x *= -1;
-                if (Math.abs(p1.mesh.position.y) > simulationSize / 2) p1.velocity.y *= -1;
-                if (Math.abs(p1.mesh.position.z) > simulationSize / 2) p1.velocity.z *= -1;
+            // Add quark 'gluon-like' jittery behavior
+            if (p1.type === 'quark') {
+                const jitter = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5
+                );
+                p1.velocity.add(jitter);
+                p1.velocity.clampLength(0, 10); // avoid infinite chaos
+            }
 
-                for (let j = i + 1; j < particles.length; j++) {
-                    const p2 = particles[j];
-                    const distance = p1.mesh.position.distanceTo(p2.mesh.position);
-                    if (distance < particleTypes[p1.type].size + particleTypes[p2.type].size) {
+            p1.mesh.position.add(p1.velocity.clone().multiplyScalar(timeFactor));
+
+            // Boundary collision
+            for (let axis of ['x', 'y', 'z']) {
+                if (Math.abs(p1.mesh.position[axis]) > simulationSize / 2) {
+                    p1.velocity[axis] *= -1;
+                }
+            }
+
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const distance = p1.mesh.position.distanceTo(p2.mesh.position);
+                const minDist = particleTypes[p1.type].size + particleTypes[p2.type].size;
+
+                if (distance < minDist) {
+                    if (p1.type === 'quark' && p2.type === 'quark') {
+                        handleQuarkCollision(p1, p2);
+                    } else {
                         handleCollision(p1, p2);
-                        totalCollisions++;
                     }
+                    totalCollisions++;
                 }
             }
         }
     }
+}
 
-    function handleCollision(p1, p2) {
-        const v1 = p1.velocity.clone();
-        p1.velocity.copy(p2.velocity);
-        p2.velocity.copy(v1);
-        p1.collisions++;
-        p2.collisions++;
-    }
+    function handleQuarkCollision(q1, q2) {
+    // Add realistic features for quarks: attraction or spin reversal
+    const repulsion = q1.charge * q2.charge < 0 ? 1 : -1; // Opposite charges attract
+    const direction = q1.mesh.position.clone().sub(q2.mesh.position).normalize();
+
+    const forceMagnitude = repulsion * 0.5; // Weak attractive/repulsive force
+    q1.velocity.add(direction.multiplyScalar(forceMagnitude));
+    q2.velocity.add(direction.multiplyScalar(-forceMagnitude));
+
+    // Optional: Randomize spin slightly (fake QCD interaction)
+    q1.spin *= Math.random() > 0.5 ? 1 : -1;
+    q2.spin *= Math.random() > 0.5 ? 1 : -1;
+
+    q1.collisions++;
+    q2.collisions++;
+}
 
     function updateTrails() {
         if (!showTrails) return;
