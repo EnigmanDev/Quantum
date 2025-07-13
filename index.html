@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Particle Collision Simulator</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- ✅ Use MathJax for better LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="simulation-container"></div>
+
+    <div id="ui-container">
+        <div id="stats-panel">
+            <h4>Live Stats</h4>
+            <div id="stats-content"></div>
+        </div>
+
+        <div id="controls-panel">
+            <h4>Simulation Controls</h4>
+            <div class="control-group">
+                <label for="time-slider">Time Speed</label>
+                <input type="range" id="time-slider" min="0" max="3" value="1" step="0.1">
+            </div>
+            <div class="control-group">
+                <label for="particle-slider">Particle Count</label>
+                <input type="range" id="particle-slider" min="10" max="500" value="100" step="5">
+            </div>
+            <div class="control-group">
+                <label for="size-slider">Simulation Size</label>
+                <input type="range" id="size-slider" min="20" max="100" value="30" step="2">
+            </div>
+            <div class="control-group">
+                <input type="checkbox" id="toggle-gpu" checked>
+                <label for="toggle-gpu">GPU Accelerated Physics</label>
+            </div>
+            <div class="control-group">
+                <input type="checkbox" id="toggle-trails" checked>
+                <label for="toggle-trails">Show Particle Trails</label>
+            </div>
+            <div class="control-group">
+                <input type="checkbox" id="realtime-update" checked>
+                <label for="realtime-update">Update Simulation Real-time</label>
+            </div>
+            <button id="focus-btn">Focus on Quark</button>
+            <button id="restart-btn">Apply & Restart</button>
+        </div>
+
+        <div id="equations-panel">
+            <h4>Simulation Equations</h4>
+            <div id="equations-content"></div>
+        </div>
+
+        <div id="info-panel">
+            <h4>About This Simulation</h4>
+            <p>This is a high-performance, illustrative simulation of particle interactions inspired by quantum principles. It uses classical mechanics for collisions to ensure performance.</p>
+            <p><strong>Disclaimer:</strong> This is not a scientifically exact quantum simulation.</p>
+        </div>
+
+        <div id="credits-panel">
+            <h4>Credits</h4>
+            <p>Developed by [Your Name/Team Name]</p>
+            <p>Special thanks to Three.js, MathJax, and the open-source community.</p>
+        </div>
+
+        <div id="papers-panel">
+            <h4>Scientific Papers & Resources</h4>
+            <ul>
+                <li><a href="https://arxiv.org/abs/quant-ph/0004055" target="_blank">A. Aspect, J. Dalibard, and G. Roger, "Experimental Test of Bell's Inequalities Using Time-Varying Analyzers," Phys. Rev. Lett. 49, 1804 (1982).</a></li>
+                <li><a href="https://www.nature.com/articles/nature01077" target="_blank">M. Arndt, O. Nairz, J. Voss-Andreae, C. Keller, G. van der Zouw, and A. Zeilinger, "Wave-particle duality of C60 molecules," Nature 401, 680 (1999).</a></li>
+                <li><a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.115.250401" target="_blank">L. K. Shalm et al., "Strong Loophole-Free Test of Local Realism Using Entangled Photons," Phys. Rev. Lett. 115, 250401 (2015).</a></li>
+                <li><a href="https://www.sciencedirect.com/science/article/pii/0034487764900175" target="_blank">R. P. Feynman, "The Theory of Positrons," Phys. Rev. 76, 749 (1949).</a></li>
+                <li><a href="https://www.sciencedirect.com/science/article/pii/0031916361900036" target="_blank">E. Schrödinger, "An Undulatory Theory of the Mechanics of Atoms and Molecules," Phys. Rev. 28, 1049 (1926).</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="focus-info"></div>
+    <div id="tooltip"></div>
+
+    <!-- Three.js and dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <!-- Main Logic -->
+    <script src="main.js"></script>
+</body>
+</html>
